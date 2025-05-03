@@ -1,5 +1,3 @@
-print("--- app.py script execution started ---") # 添加这行
-
 import os
 import re
 import time
@@ -296,8 +294,5 @@ if __name__ == '__main__':
     print(f"启动 API 服务器在 http://0.0.0.0:{API_PORT}") # 本地开发监听 0.0.0.0
     # 注意：app.run 主要用于本地开发，生产环境由 Dockerfile 中的 CMD (uvicorn) 启动
     # 保留 app.run 是为了方便本地直接运行 python app.py 测试
-    print("--- Starting Flask development server (for local testing) ---") # 可以加一句区分
     app.run(host='0.0.0.0', port=API_PORT, debug=True)
-
-print("--- app.py script execution finished (bottom of file) ---") # 可以在文件末尾也加一句
 

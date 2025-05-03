@@ -4,8 +4,8 @@ const userInput = document.getElementById('user-input');
 const sendButton = document.getElementById('send-button');
 
 // --- 配置 API ---
-// 指向你本地运行的 Flask API Wrapper (app.py)
-const API_ENDPOINT = 'http://127.0.0.1:5001/v1/chat/completions'; // 【确保端口号正确】
+// 使用相对路径，这样它会指向加载页面的同一个域名的 API
+const API_ENDPOINT = '/v1/chat/completions'; // 修改这里，移除域名和端口
 // 前端不需要 API Key，认证由后端 app.py 处理
 const API_KEY = null;
 
@@ -72,12 +72,14 @@ async function sendMessage() {
 
         // 5. 更新界面：用 AI 回复替换 "思考中..."
         loadingMessageElement.textContent = aiReply;
-        loadingMessageElement.classList.remove('loading'); // 移除 loading 样式
+        // 移除 loading 类，保留 bot 类
+        loadingMessageElement.classList.remove('loading'); // 只移除 loading
 
     } catch (error) {
         console.error('调用 API 时出错:', error);
         // 6. 处理错误情况：在界面上显示错误信息
         loadingMessageElement.textContent = `出错了: ${error.message || error}`;
+        // 同样只移除 loading 类
         loadingMessageElement.classList.remove('loading');
         loadingMessageElement.style.color = 'red'; // 标红显示错误
     } finally {
@@ -89,7 +91,10 @@ async function sendMessage() {
 // 在聊天输出区显示消息的辅助函数
 function displayMessage(text, sender) {
     const messageElement = document.createElement('div');
-    messageElement.classList.add('message', sender);
+    // 将 sender 字符串按空格分割成单独的类名
+    const classes = sender.split(' ');
+    // 添加 'message' 类和 sender 提供的所有类
+    messageElement.classList.add('message', ...classes); // 使用扩展运算符添加所有类
     messageElement.textContent = text;
     chatOutput.appendChild(messageElement);
     return messageElement; // 返回创建的元素，方便后续操作（如移除loading）
