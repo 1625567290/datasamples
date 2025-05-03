@@ -1,4 +1,4 @@
 flask
 flask-cors
 openai
-uvicorn[standard] # 替换 gunicorn
+gunicorn # 将 uvicorn[standard] 替换为 gunicorn

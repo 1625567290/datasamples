@@ -22,10 +22,9 @@ COPY . .
 EXPOSE 5001
 
 # 定义容器启动时运行的命令
-# 使用 uvicorn 运行 Flask 应用 (Shell 格式)
-CMD uvicorn app:app --host 0.0.0.0 --port 5001 --workers 1
+# 使用 Gunicorn 运行 Flask 应用 (推荐)
+CMD ["gunicorn", "--bind", "0.0.0.0:5001", "--workers", "1", "app:app"]
 
-# 注释掉或删除旧的 CMD 指令 (JSON 格式)
-# CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5001", "--workers", "1"]
-# CMD ["gunicorn", "--bind", "0.0.0.0:5001", "app:app"]
+# 注释掉或删除旧的 CMD 指令
+# CMD uvicorn app:app --host 0.0.0.0 --port 5001 --workers 1
 # CMD ["flask", "run", "--host=0.0.0.0", "--port=5001"]
