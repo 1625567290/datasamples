@@ -3,7 +3,8 @@ import re
 import time
 import uuid
 import json
-from flask import Flask, request, jsonify, Response, stream_with_context
+# 增加导入 send_from_directory
+from flask import Flask, request, jsonify, Response, stream_with_context, send_from_directory
 from openai import OpenAI
 
 # --- 配置区域 ---
@@ -97,7 +98,8 @@ def build_augmented_prompt(original_question, knowledge):
     return augmented_prompt.strip()
 
 # --- Flask 应用和 OpenAI 客户端初始化 ---
-app = Flask(__name__)
+# 指定 static_folder='static' (虽然 'static' 是默认值，显式指定更清晰)
+app = Flask(__name__, static_folder='static')
 client = None # 先设为 None
 try:
     # 初始化用于调用 ModelScope 的 OpenAI 客户端
@@ -105,12 +107,20 @@ try:
         base_url=BASE_MODEL_API_ENDPOINT,
         api_key=BASE_MODEL_API_KEY,
     )
-    print("OpenAI 客户端初始化成功 (连接至 ModelScope)。")
-except Exception as init_error:
-    print(f"初始化 OpenAI 客户端失败: {init_error}")
-    # client 保持为 None
+    print("OpenAI 客户端（用于 ModelScope）初始化成功。")
+except Exception as e:
+    print(f"初始化 OpenAI 客户端时出错: {e}")
+    # 这里可以决定是否要退出程序，或者让应用在没有客户端的情况下运行（API 会失败）
+    # exit(1) # 如果必须要有客户端才能运行，可以选择退出
 
-# --- API 端点：模拟 OpenAI 的 /v1/chat/completions ---
+# --- 新增：服务 index.html 的路由 ---
+@app.route('/')
+def serve_index():
+    # 从当前目录提供 index.html
+    # 注意：确保 index.html 在 app.py 所在的目录下
+    return send_from_directory('.', 'index.html')
+
+# --- API 端点 ---
 @app.route('/v1/chat/completions', methods=['POST'])
 def chat_completions():
     global client # 引用全局变量
@@ -126,7 +136,6 @@ def chat_completions():
              print(f"重新尝试初始化 OpenAI 客户端失败: {retry_init_error}")
              return jsonify({"error": {"message": "服务器内部错误：ModelScope 客户端初始化失败", "type": "server_error", "code": None}}), 500
 
-    # ... (后续的 chat_completions 函数代码保持不变，从之前的回答复制过来) ...
     # 1. 获取请求数据
     try:
         request_data = request.get_json()
