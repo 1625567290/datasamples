@@ -1,0 +1,4 @@
+flask
+openai
+# 如果使用 Gunicorn (推荐用于生产)
+gunicorn
