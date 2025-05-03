@@ -101,6 +101,8 @@ def build_augmented_prompt(original_question, knowledge):
 # --- Flask 应用和 OpenAI 客户端初始化 ---
 app = Flask(__name__, static_folder='static')
 CORS(app) # 初始化 CORS，允许所有来源访问所有路由
+# 获取 app.py 所在的目录
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 client = None # 先设为 None
 try:
     # 初始化用于调用 ModelScope 的 OpenAI 客户端
@@ -117,9 +119,21 @@ except Exception as e:
 # --- 新增：服务 index.html 的路由 ---
 @app.route('/')
 def serve_index():
-    # 从当前目录提供 index.html
-    # 注意：确保 index.html 在 app.py 所在的目录下
-    return send_from_directory('.', 'index.html')
+    # 从 app.py 所在的目录提供 index.html
+    # 确保 index.html 和 app.py 在容器内的同一目录 (/app)
+    print(f"尝试从目录 '{APP_ROOT}' 提供文件 'index.html'")
+    try:
+        # 使用 APP_ROOT 作为目录基础
+        return send_from_directory(APP_ROOT, 'index.html')
+    except FileNotFoundError:
+        print(f"错误：在目录 '{APP_ROOT}' 中找不到 'index.html'")
+        # 返回一个明确的 404 错误，而不是让应用崩溃
+        return "Error: index.html not found.", 404
+    except Exception as e:
+        print(f"提供 'index.html' 时发生错误: {e}")
+        import traceback
+        traceback.print_exc() # 打印详细错误堆栈到日志
+        return "Internal server error serving index.html", 500
 
 # --- API 端点 ---
 @app.route('/v1/chat/completions', methods=['POST'])
@@ -277,6 +291,8 @@ if __name__ == '__main__':
 
 
     # 启动 Flask 开发服务器
-    print(f"启动 API 服务器在 http://127.0.0.1:{API_PORT}")
-    app.run(host='0.0.0.0', port=API_PORT, debug=True) # debug=True 方便开发
+    print(f"启动 API 服务器在 http://0.0.0.0:{API_PORT}") # 本地开发监听 0.0.0.0
+    # 注意：app.run 主要用于本地开发，生产环境由 Dockerfile 中的 CMD (uvicorn) 启动
+    # 保留 app.run 是为了方便本地直接运行 python app.py 测试
+    app.run(host='0.0.0.0', port=API_PORT, debug=True)
 
