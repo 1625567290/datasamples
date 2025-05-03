@@ -3,8 +3,9 @@ import re
 import time
 import uuid
 import json
-# 增加导入 send_from_directory
+# 增加导入 send_from_directory 和 CORS
 from flask import Flask, request, jsonify, Response, stream_with_context, send_from_directory
+from flask_cors import CORS # 导入 CORS
 from openai import OpenAI
 
 # --- 配置区域 ---
@@ -98,8 +99,8 @@ def build_augmented_prompt(original_question, knowledge):
     return augmented_prompt.strip()
 
 # --- Flask 应用和 OpenAI 客户端初始化 ---
-# 指定 static_folder='static' (虽然 'static' 是默认值，显式指定更清晰)
 app = Flask(__name__, static_folder='static')
+CORS(app) # 初始化 CORS，允许所有来源访问所有路由
 client = None # 先设为 None
 try:
     # 初始化用于调用 ModelScope 的 OpenAI 客户端
