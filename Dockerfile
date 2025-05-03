@@ -22,9 +22,9 @@ COPY . .
 EXPOSE 5001
 
 # 定义容器启动时运行的命令
-# 使用 gunicorn 作为 WSGI 服务器运行 Flask 应用
-# 你需要将 gunicorn 添加到 requirements.txt
-CMD ["gunicorn", "--bind", "0.0.0.0:5001", "app:app"] # 启用 Gunicorn
+# 使用 uvicorn 运行 Flask 应用 (app:app 指向 app.py 文件中的 app 实例)
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5001", "--workers", "1"] # 使用 uvicorn
 
-# 或者，如果只是测试，可以使用 Flask 开发服务器（不推荐用于生产）
-# CMD ["flask", "run", "--host=0.0.0.0", "--port=5001"] # 注释掉这行
+# 注释掉或删除旧的 CMD 指令
+# CMD ["gunicorn", "--bind", "0.0.0.0:5001", "app:app"]
+# CMD ["flask", "run", "--host=0.0.0.0", "--port=5001"]
