@@ -85,6 +85,7 @@ async function sendMessage() {
     } finally {
         // 确保无论成功或失败，最终都滚动到底部
          scrollToBottom();
+         
     }
 }
 
