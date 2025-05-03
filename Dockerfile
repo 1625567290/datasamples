@@ -8,6 +8,9 @@ WORKDIR /app
 # 注意：你需要先创建一个 requirements.txt 文件
 COPY requirements.txt requirements.txt
 
+# 添加一行来尝试破坏缓存
+RUN echo "Forcing cache invalidation $(date)"
+
 # 安装依赖
 RUN pip install --no-cache-dir -r requirements.txt
 
